@@ -2,6 +2,14 @@
 	let { children } = $props();
 </script>
 
-<main class="fill-parent">
-	{@render children()}
-</main>
+<div class="container fill-screen col-centred">
+	<main class="fill-parent">
+		{@render children()}
+	</main>
+</div>
+
+<style>
+	.container {
+		background: var(--base);
+	}
+</style>

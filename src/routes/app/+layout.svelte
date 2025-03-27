@@ -9,7 +9,7 @@
 	});
 </script>
 
-<div class="container fill-parent">
+<div class="container fill-screen">
 	<main>
 		{@render children()}
 	</main>
