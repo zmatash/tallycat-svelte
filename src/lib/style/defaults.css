@@ -1,0 +1,48 @@
+body {
+	color: var(--text);
+	font-family: "Inter", sans-serif;
+}
+
+span {
+	line-height: 1.2;
+}
+
+div,
+form,
+input {
+	display: flex;
+	flex-direction: column;
+}
+
+svg {
+	height: var(--size24);
+	width: var(--size24);
+	color: var(--subtext0);
+	flex-shrink: 0;
+	stroke-width: 2;
+}
+
+button {
+	background: none;
+	padding: var(--size8);
+}
+
+main {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+input {
+	font-size: var(--size24);
+	color: var(--text);
+	border: none;
+	outline: none;
+	background: none;
+	flex-shrink: 1;
+	width: 100%;
+}
+
+input::placeholder {
+	color: var(--subtext0);
+}

@@ -1,0 +1,53 @@
+{
+	"svelte.enable-ts-plugin": true,
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"editor.formatOnSave": true,
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": "always",
+		"source.addMissingImports": "always",
+		"source.removeUnusedImports": "always",
+		"source.sortImports": "always"
+	},
+	"[css]": {
+		"editor.defaultFormatter": "vscode.css-language-features"
+	},
+	"[svelte]": {
+		"editor.quickSuggestions": {
+			"other": true,
+			"comments": false,
+			"strings": true
+		}
+	},
+	"explorer.fileNesting.enabled": true,
+	"explorer.fileNesting.patterns": {
+		"+layout.svelte": "+layout.ts,+layout.ts,+layout.js,+layout.server.ts,+layout.server.js,+layout.gql",
+		"+page.svelte": "+page.server.ts,+page.server.js,+page.ts,+page.js,+page.gql"
+	},
+	"files.exclude": {
+		"**/.git": true,
+		"**/.svn": true,
+		"**/.hg": true,
+		"**/.DS_Store": true,
+		"**/Thumbs.db": true,
+		"**/node_modules": true,
+		"**/.vercel": true,
+		"**/.svelte-kit": true,
+		"**/.idea": true,
+		"supabase/": true
+	},
+	"eslint.enable": true,
+	"eslint.useFlatConfig": true,
+	"eslint.validate": ["javascript", "typescript", "svelte"],
+	"eslint.probe": ["javascript", "typescript", "svelte"],
+	"workbench.editor.customLabels.enabled": true,
+	"workbench.editor.customLabels.patterns": {
+		"**/src/routes/**/+layout.svelte": "${dirname} - Layout",
+		"**/src/routes/**/+layout.server.ts": "${dirname} - Layout Server",
+		"**/src/routes/**/+layout.reset.svelte": "${dirname} - Layout Reset",
+		"**/src/routes/**/+page.svelte": "${dirname} - Page",
+		"**/src/routes/**/+page.server.ts": "${dirname} - Page Server",
+		"**/src/routes/**/+page.ts": "${dirname} - Page Script",
+		"**/src/routes/**/+error.svelte": "${dirname} - Error",
+		"**/src/routes/**/+layout.ts": "${dirname} - Layout Script"
+	}
+}

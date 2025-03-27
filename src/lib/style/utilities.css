@@ -1,0 +1,65 @@
+.fill-screen {
+	width: 100vw;
+	height: 100vh;
+}
+
+.fill-parent {
+	width: 100%;
+	height: 100%;
+}
+
+.row-centred {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.col-centred {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.just-between {
+	justify-content: space-between;
+}
+
+.just-around {
+	justify-content: space-around;
+}
+
+.just-evenly {
+	justify-content: space-evenly;
+}
+
+.just-center {
+	justify-content: center;
+}
+
+.corner-4 {
+	border-radius: 4px;
+}
+
+.gap-8 {
+	gap: var(--size8);
+}
+
+.gap-16 {
+	gap: var(--size16);
+}
+
+.pad-8 {
+	padding: var(--size8);
+}
+
+.pad-16 {
+	padding: var(--size16);
+}
+
+.pad-24 {
+	padding: var(--size24);
+}
+
+.pad-32 {
+	padding: var(--size32);
+}
