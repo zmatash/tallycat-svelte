@@ -5,6 +5,7 @@ body {
 
 span {
 	line-height: 1.2;
+	color: var(--subtext0);
 }
 
 div,
@@ -31,6 +32,7 @@ main {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	overflow-y: auto;
 }
 
 input {
@@ -45,4 +47,8 @@ input {
 
 input::placeholder {
 	color: var(--subtext0);
+}
+
+nav {
+	background: var(--mantle);
 }
