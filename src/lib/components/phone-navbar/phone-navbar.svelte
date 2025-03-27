@@ -33,3 +33,9 @@
 	/>
 	<PhoneNavButton goto="/app/settings" sprite="settings" label="Settings" />
 </nav>
+
+<style>
+	nav {
+		border-top: 1px solid var(--surface1);
+	}
+</style>
