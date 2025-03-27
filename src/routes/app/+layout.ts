@@ -1,5 +1,6 @@
+import { collectionStore } from "$lib/stores/collection-store.svelte";
 import { profileStore } from "$lib/stores/profile-store.svelte";
-import type { LayoutLoad } from "./$types";
+import type { LayoutLoad } from "./collections/$types";
 
 export const load: LayoutLoad = async (props) => {
 	const { supabase } = await props.parent();
@@ -11,6 +12,8 @@ export const load: LayoutLoad = async (props) => {
 			profileStore.invalidate();
 		}
 	}).data.subscription;
+
+	await collectionStore.initialise(supabase);
 
 	return {
 		dispose: () => subscription.unsubscribe()
