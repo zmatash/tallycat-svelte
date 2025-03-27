@@ -24,12 +24,12 @@
 </script>
 
 <nav class="row-centred just-evenly">
-	<PhoneNavButton goto="app/collections" sprite="group" label="Collections" />
+	<PhoneNavButton goto="/app/collections" sprite="group" label="Collections" />
 	<PhoneNavButton
 		goto="/collections"
 		sprite="check"
 		label={activeCollectionProps.label}
 		isEnabled={activeCollectionProps.isEnabled}
 	/>
-	<PhoneNavButton goto="app/settings" sprite="settings" label="Settings" />
+	<PhoneNavButton goto="/app/settings" sprite="settings" label="Settings" />
 </nav>

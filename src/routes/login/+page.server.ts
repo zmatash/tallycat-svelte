@@ -30,9 +30,9 @@ export const actions = {
 		});
 
 		if (!activeCollectionIdResult.success || activeCollectionIdResult.data === null) {
-			throw redirect(302, "/collections");
+			throw redirect(302, "app/collections");
 		}
 
-		throw redirect(302, `/collections/${activeCollectionIdResult.data}`);
+		throw redirect(302, `app/collections/${activeCollectionIdResult.data}`);
 	}
 } satisfies Actions;
