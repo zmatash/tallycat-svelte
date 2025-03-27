@@ -21,12 +21,4 @@
 	});
 </script>
 
-<div class="fill-screen app-wrapper col-centred">
-	{@render children()}
-</div>
-
-<style>
-	.app-wrapper {
-		background: var(--base);
-	}
-</style>
+{@render children()}
