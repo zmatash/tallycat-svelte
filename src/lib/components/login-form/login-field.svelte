@@ -1,4 +1,6 @@
 <script lang="ts">
+	import getSprite from "$lib/utility/sprite-helpers";
+
 	interface Props {
 		field: "email" | "password";
 		onChange: (value: string) => void;
@@ -7,28 +9,33 @@
 
 	let props: Props = $props();
 
-	const isInputHidden = $state(false);
-	let type = $derived.by(() => {
-		if (props.field === "email") {
-			return "email";
-		}
-		if (isInputHidden) {
-			return "password";
-		}
-		return "text";
-	});
+	let isInputHidden = $state(true);
+	let type = $derived(props.field === "email" ? "email" : isInputHidden ? "password" : "text");
 	const placeholder = props.field === "email" ? "Email" : "Password";
 </script>
 
-<div class={["input-container corner-4", { error: props.hasError }]}>
+<div class={["input-container corner-4 row-centred just-between gap-8", { error: props.hasError }]}>
+	<svg>
+		<use href={getSprite(props.field === "email" ? "mail" : "lock-keyhole")} />
+	</svg>
 	<input
 		aria-label={placeholder}
 		name={props.field}
-		class="pad-8"
 		{type}
 		{placeholder}
 		onchange={(e) => props.onChange(e.currentTarget.value)}
 	/>
+	{#if props.field === "password"}
+		<button
+			type="button"
+			onclick={() => (isInputHidden = !isInputHidden)}
+			aria-label={isInputHidden ? "Show" : "Hide"}
+		>
+			<svg>
+				<use href={getSprite(isInputHidden ? "eye" : "eye-off")} />
+			</svg>
+		</button>
+	{/if}
 </div>
 
 <style>
@@ -36,6 +43,7 @@
 		background: var(--surface0);
 		width: 100%;
 		border: 1px solid transparent;
+		padding: 0 8px;
 	}
 
 	/* Border itself must be set in the parent to avoid a layout shift */
