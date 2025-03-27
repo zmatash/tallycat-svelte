@@ -13,13 +13,12 @@
 	}
 
 	let { isEnabled = true, ...props }: Props = $props();
+	let isActive = $derived(page.route.id === props.goto);
 
 	const onClick = () => {
-		if (!isEnabled) return;
+		if (!isEnabled || isActive) return;
 		goto(props.goto);
 	};
-
-	let isActive = $derived(page.route.id === props.goto);
 </script>
 
 <button
