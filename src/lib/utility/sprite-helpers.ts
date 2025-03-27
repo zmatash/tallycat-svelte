@@ -1,5 +1,5 @@
-import spriteKeys from "../common/generated/icons";
+import { spriteKeys, type SpriteKey } from "$lib/common/generated/icons";
 
-export default function getSprite(name: keyof typeof spriteKeys) {
+export default function getSprite(name: SpriteKey) {
 	return spriteKeys[name];
 }

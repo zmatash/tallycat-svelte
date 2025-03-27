@@ -1,8 +1,12 @@
 """Process icon svgs, removing hardcoded properties and generating a module for easy access."""
 
 import os
-import re
 from pathlib import Path
+
+
+def process_entry(entry: str, end: str) -> str:
+    return f"{entry}{end}\n"
+
 
 ROOT = "/sprite-sheet.svg#"
 
@@ -11,28 +15,28 @@ icons_file = Path(working_dir) / "src" / "lib" / "common" / "generated" / "icons
 
 icons = Path(working_dir) / "assets" / "icons"
 
-pattern = r'stroke-width="[^"]+"'
-icon_names = []
+icon_object = "export const spriteKeys: Sprites = {\n"
+icon_object_interface = "export interface Sprites {\n"
+icon_key_type = "export type SpriteKey = keyof Sprites;"
 
-icon_dictionary_string = "const spriteKeys = {\n"
+icon_paths = icons.iterdir()
 
 for icon in icons.iterdir():
     icon_name = icon.stem
     if "-" in icon_name:
         icon_name = f'"{icon_name}"'
-    icon_dictionary_string += f'\t{icon_name}: "{ROOT}{icon.stem}",\n'
 
-    with open(icon, "r") as f:
-        content = f.read()
+    entry = f'{icon_name}: "{ROOT}{icon.stem}"'
+    icon_object += f"\t{process_entry(entry, ',')}"
+    icon_object_interface += f"\treadonly {process_entry(entry, ';')}"
 
-    modified_content = re.sub(pattern, "", content)
-
-    with open(icon, "w") as f:
-        f.write(modified_content)
-
-icon_dictionary_string += "} as const;\n\nexport default spriteKeys;\n"
+icon_object += "} as const;"
+icon_object_interface += "};"
 
 with open(icons_file, "w") as f:
-    f.write(icon_dictionary_string)
+    f.write(icon_object_interface + "\n\n")
+    f.write(icon_key_type + "\n\n")
+    f.write(icon_object + "\n")
+
 
 print("Processed all icons")
