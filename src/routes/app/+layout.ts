@@ -12,9 +12,10 @@ export const load = async ({ parent }) => {
 		}
 	}).data.subscription;
 
-	await collectionStore.initialise(supabase);
+	collectionStore.initialise(supabase);
 
 	return {
+		supabase,
 		dispose: () => subscription.unsubscribe()
 	};
 };
