@@ -1,24 +1,31 @@
 <script lang="ts">
 	import getSprite from "$lib/utility/sprite-helpers";
+	import CardButton from "../card-button.svelte";
+
+	import styles from "./card.module.css";
+
+	interface Props {
+		onClick: () => void;
+	}
+
+	let props: Props = $props();
 </script>
 
-<button aria-label="Create Collection" type="button" class="col-centred just-center gap-8">
+<CardButton
+	class={`col-centred just-center gap-8 ${styles["collection-card"]}`}
+	ariaLabel="Create Collection"
+	buttonType="button"
+	onClick={props.onClick}
+>
 	<div class="icon-container col-centred just-center">
 		<svg>
 			<title>Plus</title>
 			<use href={getSprite("plus")} />
 		</svg>
 	</div>
-</button>
+</CardButton>
 
 <style>
-	button {
-		border-radius: var(--size16);
-		background: var(--surface0);
-		width: 100%;
-		aspect-ratio: 1.2;
-	}
-
 	svg {
 		width: var(--size40);
 		height: var(--size40);
@@ -27,7 +34,7 @@
 	.icon-container {
 		background: var(--surface1);
 		border-radius: 50%;
-		width: var(--size64);
-		height: var(--size64);
+		width: var(--size72);
+		height: var(--size72);
 	}
 </style>

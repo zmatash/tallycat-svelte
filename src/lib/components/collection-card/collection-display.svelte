@@ -1,44 +1,55 @@
 <script lang="ts">
+	import { goto } from "$app/navigation";
 	import type { CollectionState } from "$lib/utility/state/collection";
+	import Card from "../card.svelte";
+
+	import styles from "./card.module.css";
 
 	interface Props {
 		collection: CollectionState;
 	}
 
 	let props: Props = $props();
+
+	const onClick = () => {
+		goto(`/app/collections/${props.collection.id}`);
+	};
+
+	let name = $state(props.collection.name);
 </script>
 
-<button aria-label={`${props.collection.name} Collection`} type="button" class="col-centred just-center gap-8">
+<Card class={`row-centred gap-16 pad-16 ${styles["collection-card"]}`}>
 	<img
 		alt="collection icon"
 		src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/logos/exports/1544x1544_circle.png"
 	/>
-	<div>
-		<span class="name-span">{props.collection.name}</span>
+	<div class="gap-8">
+		<div class="name-container">
+			<input type="text" class="name-span" bind:value={name} />
+		</div>
 		<span class="counter-span">{props.collection.memberCount} Counters</span>
 	</div>
-</button>
+</Card>
 
 <style>
-	button {
-		border-radius: var(--size16);
-		background: var(--surface0);
-		width: 100%;
-		aspect-ratio: 1.2;
-	}
-
-	img {
-		width: var(--size64);
-		height: var(--size64);
-	}
-
-	.name-span {
-		font-size: var(--size16);
-		font-weight: 500;
+	.name-container {
+		height: var(--size24);
 	}
 
 	.counter-span {
 		font-size: var(--size16);
 		color: var(--subtext0);
+	}
+
+	img {
+		width: var(--size72);
+		height: var(--size72);
+	}
+
+	input {
+		font-size: var(--size24);
+		font-weight: 500;
+		color: var(--subtext0);
+		line-height: 1;
 	}
 </style>
