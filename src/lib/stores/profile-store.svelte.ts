@@ -6,7 +6,7 @@ import type { Supabase } from "$lib/utility/types/supabase";
 let _profile: ProfileState | null = $state(null);
 
 interface ProfileStore {
-	profile: () => ProfileState | null;
+	profile: ProfileState | null;
 	initialise: (supabase: Supabase) => Promise<Result<null>>;
 	invalidate: () => void;
 }
@@ -24,12 +24,10 @@ function invalidate() {
 	_profile = null;
 }
 
-function profile() {
-	return _profile;
-}
-
 export const profileStore: ProfileStore = {
-	profile,
+	get profile() {
+		return _profile;
+	},
 	initialise,
 	invalidate
 } as const;

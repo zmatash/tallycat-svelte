@@ -4,22 +4,21 @@ import { collectionState, type CollectionState } from "$lib/utility/state/collec
 import type { Supabase } from "$lib/utility/types/supabase";
 
 interface CollectionStore {
-	collections: () => CollectionState[];
+	collections: CollectionState[];
 	isLoading: boolean;
 	isInitialising: boolean;
 	initialise: (supabase: Supabase) => ResultPromise<null>;
+	createCollection: (supabase: Supabase, name: string) => ResultPromise<null>;
 }
 
-// const _tempId = -1;
+let _tempId = -1;
 
-let isLoading = $state(false);
-const isInitialising = $state(false);
+let isLoading = $state(true);
 
 let _collectionMap = $state<Record<number, CollectionState>>({});
 const _collections = $derived(Object.values(_collectionMap).sort((a, b) => a.position - b.position));
 
 async function initialise(supabase: Supabase): ResultPromise<null> {
-	if (isInitialising) return { success: true, data: null };
 	isLoading = true;
 
 	if (!supabase.user) {
@@ -41,13 +40,39 @@ async function initialise(supabase: Supabase): ResultPromise<null> {
 	return { success: true, data: null };
 }
 
-function collections() {
-	return _collections;
+async function createCollection(supabase: Supabase, name: string): ResultPromise<null> {
+	const user = supabase.user;
+	if (!user) {
+		return { success: false, error: new Error("Not logged in") };
+	}
+
+	const tempState: CollectionState = {
+		id: _tempId--,
+		name,
+		memberCount: 0,
+		position: 0
+	};
+	_collectionMap[tempState.id] = tempState;
+
+	const dbResult = await collectionRepository.insertCollection(supabase, collectionState.toRow(user.id, tempState));
+	if (dbResult.success) {
+		return { success: true, data: null };
+	}
+
+	delete _collectionMap[tempState.id];
+	return dbResult;
 }
 
 export const collectionStore: CollectionStore = {
-	collections,
-	isLoading,
-	isInitialising,
-	initialise
+	get collections() {
+		return _collections;
+	},
+	get isLoading() {
+		return isLoading;
+	},
+	get isInitialising() {
+		return isInitialising;
+	},
+	initialise,
+	createCollection
 } as const;
