@@ -3,9 +3,8 @@ import type { Database } from "$lib/common/generated/database-types";
 import type { Supabase } from "$lib/utility/types/supabase";
 import { createBrowserClient, createServerClient, isBrowser } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { LayoutLoad } from "./$types";
 
-export const load: LayoutLoad = async ({ data, depends, fetch }) => {
+export const load = async ({ data, depends, fetch }) => {
 	depends("supabase:auth");
 
 	let client: SupabaseClient<Database>;

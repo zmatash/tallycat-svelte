@@ -1,9 +1,8 @@
 import { collectionStore } from "$lib/stores/collection-store.svelte";
 import { profileStore } from "$lib/stores/profile-store.svelte";
-import type { LayoutLoad } from "./collections/$types";
 
-export const load: LayoutLoad = async (props) => {
-	const { supabase } = await props.parent();
+export const load = async ({ parent }) => {
+	const { supabase } = await parent();
 
 	const subscription = supabase.client.auth.onAuthStateChange((_, newSession) => {
 		if (newSession) {
