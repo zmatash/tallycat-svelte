@@ -5,15 +5,15 @@ import { fail, redirect } from "@sveltejs/kit";
 import type { Actions } from "./$types";
 
 export const actions = {
-	login: async ({ request, locals }) => {
-		const formdata = await request.formData();
+	login: async (props) => {
+		const formdata = await props.request.formData();
 		const email = String(formdata.get("email"));
 		const password = String(formdata.get("password"));
 
 		if (!email) return fail(400, { error: "Email is required", email });
 		if (!password) return fail(400, { error: "Password is required", email });
 
-		const { supabase }: { supabase: SupabaseClient<Database> } = locals;
+		const { supabase }: { supabase: SupabaseClient<Database> } = props.locals;
 		const response = await supabase.auth.signInWithPassword({ email, password });
 
 		if (response.error) {
