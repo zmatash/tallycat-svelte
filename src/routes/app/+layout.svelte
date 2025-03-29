@@ -1,16 +1,25 @@
 <script lang="ts">
 	import PhoneNavbar from "$lib/components/phone-navbar/phone-navbar.svelte";
 	import { collectionStore } from "$lib/stores/collection-store.svelte.js";
-	import { onDestroy, onMount } from "svelte";
+	import { profileStore } from "$lib/stores/profile-store.svelte.js";
+	import { onMount } from "svelte";
 
 	let { children, data } = $props();
 
 	onMount(() => {
 		collectionStore.initialise(data.supabase);
-	});
 
-	onDestroy(() => {
-		data.dispose();
+		const subscription = data.supabase.client.auth.onAuthStateChange((_, newSession) => {
+			if (newSession) {
+				profileStore.initialise(data.supabase);
+			} else {
+				profileStore.invalidate();
+			}
+		}).data.subscription;
+
+		return () => {
+			subscription.unsubscribe();
+		};
 	});
 </script>
 
