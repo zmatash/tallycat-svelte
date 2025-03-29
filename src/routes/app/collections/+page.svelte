@@ -1,23 +1,53 @@
 <script lang="ts">
-	import CollectionDisplay from "$lib/components/collection-card/collection-display.svelte";
-	import CreateCollectionCard from "$lib/components/collection-card/create-collection-card.svelte";
+	import CreateCollectionCard from "$lib/components/collection-card/collection-create.svelte";
+	import Collection from "$lib/components/collection-card/collection.svelte";
 	import { collectionStore } from "$lib/stores/collection-store.svelte";
+	import type { CollectionState } from "$lib/utility/state/collection.js";
 
 	let { data } = $props();
 
-	const startCollectionCreate = () => {};
-	const createCollection = async (name: string) => {
-		collectionStore.createCollection(data.supabase, name);
+	const initialiseCollectionCreate = () => {
+		inCreationCollection = {
+			name: `Collection ${collectionStore.collections.length + 1}`,
+			memberCount: 0,
+			position: collectionStore.collections.length,
+			id: -1
+		};
+		isCreatingCollection = true;
 	};
+	const createCollection = async (_: number, name: string) => {
+		collectionStore.createCollection(data.supabase, name);
+		isCreatingCollection = false;
+		inCreationCollection = null;
+	};
+	const updateCollectionName = async (id: number, name: string) => {
+		const collection = collectionStore.getCollection(id);
+		if (collection && collection.name !== name) {
+			console.log(id, name, "update not implemented yet");
+		}
+	};
+
+	let isCreatingCollection = $state(false);
+	let inCreationCollection: CollectionState | null = $state(null);
 </script>
 
 <div class="fill-parent wrapper">
 	<div class="controls-container"></div>
 	<div class="collection-container pad-16 gap-16 col-centred">
 		{#each collectionStore.collections as collection (collection.id)}
-			<CollectionDisplay {collection} />
+			<Collection {collection} onNameBlur={updateCollectionName} eventCapture="change" />
 		{/each}
-		<CreateCollectionCard onClick={startCollectionCreate} />
+		{#if !isCreatingCollection}
+			<CreateCollectionCard onClick={initialiseCollectionCreate} />
+		{:else if inCreationCollection}
+			<Collection
+				collection={inCreationCollection}
+				focusInput={true}
+				onNameBlur={createCollection}
+				eventCapture="blur"
+				selected={true}
+			/>
+		{/if}
 	</div>
 </div>
 
