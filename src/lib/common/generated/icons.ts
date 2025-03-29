@@ -16,7 +16,9 @@ export interface Sprites {
 	readonly menu: "/sprite-sheet.svg#menu";
 	readonly minus: "/sprite-sheet.svg#minus";
 	readonly "mouse-pointer-2": "/sprite-sheet.svg#mouse-pointer-2";
+	readonly "pencil-off": "/sprite-sheet.svg#pencil-off";
 	readonly pencil: "/sprite-sheet.svg#pencil";
+	readonly pin: "/sprite-sheet.svg#pin";
 	readonly plus: "/sprite-sheet.svg#plus";
 	readonly settings: "/sprite-sheet.svg#settings";
 	readonly "shield-alert": "/sprite-sheet.svg#shield-alert";
@@ -24,7 +26,7 @@ export interface Sprites {
 	readonly "tally-5": "/sprite-sheet.svg#tally-5";
 	readonly "trash-2": "/sprite-sheet.svg#trash-2";
 	readonly "user-round-pen": "/sprite-sheet.svg#user-round-pen";
-}
+};
 
 export type SpriteKey = keyof Sprites;
 
@@ -46,12 +48,14 @@ export const spriteKeys: Sprites = {
 	menu: "/sprite-sheet.svg#menu",
 	minus: "/sprite-sheet.svg#minus",
 	"mouse-pointer-2": "/sprite-sheet.svg#mouse-pointer-2",
+	"pencil-off": "/sprite-sheet.svg#pencil-off",
 	pencil: "/sprite-sheet.svg#pencil",
+	pin: "/sprite-sheet.svg#pin",
 	plus: "/sprite-sheet.svg#plus",
 	settings: "/sprite-sheet.svg#settings",
 	"shield-alert": "/sprite-sheet.svg#shield-alert",
 	"square-x": "/sprite-sheet.svg#square-x",
 	"tally-5": "/sprite-sheet.svg#tally-5",
 	"trash-2": "/sprite-sheet.svg#trash-2",
-	"user-round-pen": "/sprite-sheet.svg#user-round-pen"
+	"user-round-pen": "/sprite-sheet.svg#user-round-pen",
 } as const;
