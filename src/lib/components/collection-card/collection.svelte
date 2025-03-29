@@ -23,7 +23,7 @@
 		alt="collection icon"
 		src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/logos/exports/1544x1544_circle.png"
 	/>
-	<div class="gap-8">
+	<div class="wrapper">
 		<div class="name-container">
 			<input type="text" class="name-span" bind:value={name} />
 		</div>
@@ -32,6 +32,15 @@
 </Card>
 
 <style>
+	.wrapper {
+		justify-content: start;
+		align-items: start;
+		height: var(--size72);
+		flex-direction: column;
+		display: flex;
+		justify-content: space-evenly;
+	}
+
 	.name-container {
 		height: var(--size24);
 	}
@@ -39,6 +48,7 @@
 	.counter-span {
 		font-size: var(--size16);
 		color: var(--subtext0);
+		text-align: start;
 	}
 
 	img {
@@ -50,6 +60,5 @@
 		font-size: var(--size24);
 		font-weight: 500;
 		color: var(--subtext0);
-		line-height: 1;
 	}
 </style>
