@@ -9,7 +9,7 @@
 	onMount(() => {
 		collectionStore.initialise(data.supabase);
 
-		const subscription = data.supabase.client.auth.onAuthStateChange((_, newSession) => {
+		const authChangeSubscription = data.supabase.client.auth.onAuthStateChange((_, newSession) => {
 			if (newSession) {
 				profileStore.initialise(data.supabase);
 			} else {
@@ -18,7 +18,7 @@
 		}).data.subscription;
 
 		return () => {
-			subscription.unsubscribe();
+			authChangeSubscription.unsubscribe();
 		};
 	});
 </script>
