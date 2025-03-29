@@ -27,11 +27,12 @@ function toRowPartial(counter: PartialWithId<CounterState>): PartialWithId<Count
 	};
 }
 
-function toRowOmitId(counter: Omit<CounterState, "id">): Omit<CounterRow, "id" | "collection_id"> {
+function toRowOmitId(counter: Omit<CounterState, "id">): Omit<CounterRow, "id"> {
 	return {
 		name: counter.name,
 		value: counter.value,
-		position: counter.index
+		position: counter.index,
+		collection_id: counter.collectionId
 	};
 }
 
