@@ -1,3 +1,4 @@
+import type { PartialWithId } from "$lib/common/types";
 import { collectionRepository } from "$lib/repository/collection-repository";
 import type { ResultPromise } from "$lib/utility/result";
 import { collectionState, type CollectionState } from "$lib/utility/state/collection";
@@ -5,9 +6,11 @@ import type { Supabase } from "$lib/utility/types/supabase";
 
 interface CollectionStore {
 	collections: CollectionState[];
+	getCollection: (id: number) => CollectionState | null;
 	isLoading: boolean;
 	initialise: (supabase: Supabase) => ResultPromise<null>;
 	createCollection: (supabase: Supabase, name: string) => ResultPromise<null>;
+	updateCollection: (supabase: Supabase, update: PartialWithId<CollectionState>) => ResultPromise<null>;
 }
 
 let _tempId = -1;
@@ -39,6 +42,36 @@ async function initialise(supabase: Supabase): ResultPromise<null> {
 	return { success: true, data: null };
 }
 
+function getCollection(id: number): CollectionState | null {
+	return _collectionMap[id] ?? null;
+}
+
+async function updateCollection(supabase: Supabase, update: PartialWithId<CollectionState>): ResultPromise<null> {
+	const user = supabase.user;
+	if (!user) {
+		return { success: false, error: new Error("Not logged in") };
+	}
+	const originalCollectionState = _collectionMap[update.id];
+	if (!originalCollectionState) {
+		return { success: false, error: new Error("Collection not found") };
+	}
+
+	const updatedCollection: CollectionState = {
+		...originalCollectionState,
+		...update
+	};
+	_collectionMap[updatedCollection.id] = updatedCollection;
+
+	const row = collectionState.toRowPartial(update);
+	const result = await collectionRepository.patchCollection(supabase, row);
+	if (result.success) {
+		return result;
+	}
+
+	_collectionMap[updatedCollection.id] = originalCollectionState;
+	return result;
+}
+
 async function createCollection(supabase: Supabase, name: string): ResultPromise<null> {
 	const user = supabase.user;
 	if (!user) {
@@ -53,7 +86,7 @@ async function createCollection(supabase: Supabase, name: string): ResultPromise
 	};
 	_collectionMap[tempState.id] = tempState;
 
-	const dbResult = await collectionRepository.insertCollection(supabase, collectionState.toRow(user.id, tempState));
+	const dbResult = await collectionRepository.insertCollection(supabase, collectionState.toRowOmitId(tempState));
 	if (dbResult.success) {
 		return { success: true, data: null };
 	}
@@ -69,6 +102,8 @@ export const collectionStore: CollectionStore = {
 	get isLoading() {
 		return isLoading;
 	},
+	getCollection,
 	initialise,
-	createCollection
+	createCollection,
+	updateCollection
 } as const;
