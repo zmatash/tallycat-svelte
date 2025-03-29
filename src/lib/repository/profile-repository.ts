@@ -2,7 +2,7 @@ import type { ProfileRow } from "$lib/common/types";
 import { createResult, type ResultPromise } from "$lib/utility/result";
 import type { Supabase } from "$lib/utility/types/supabase";
 
-interface ProfileRepository {
+interface IProfileRepository {
 	getProfile: (supabase: Supabase) => ResultPromise<ProfileRow>;
 	getValidActiveCollection: (supabase: Supabase) => ResultPromise<number | null>;
 	updateProfile: (supabase: Supabase, updatedProfile: Partial<ProfileRow>) => ResultPromise<null>;
@@ -26,7 +26,7 @@ async function updateProfile(supabase: Supabase, updatedProfile: Partial<Profile
 	return createResult(response);
 }
 
-export const profileRepository: ProfileRepository = {
+export const profileRepository: IProfileRepository = {
 	getProfile,
 	getValidActiveCollection,
 	updateProfile

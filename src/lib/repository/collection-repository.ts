@@ -2,7 +2,7 @@ import type { CollectionRow, PartialWithId } from "$lib/common/types";
 import { createResult, type ResultPromise } from "$lib/utility/result";
 import type { Supabase } from "$lib/utility/types/supabase";
 
-type CollectionRepository = {
+interface ICollectionRepository {
 	getCollections: (supabase: Supabase) => ResultPromise<CollectionRow[]>;
 	getCollection: (supabase: Supabase, id: number) => ResultPromise<CollectionRow>;
 	getCollectionIds: (supabase: Supabase) => ResultPromise<{ id: number }[]>;
@@ -12,7 +12,7 @@ type CollectionRepository = {
 		collection: Omit<CollectionRow, "id" | "user_id">
 	) => ResultPromise<{ id: number }>;
 	deleteCollection: (supabase: Supabase, id: number) => ResultPromise<null>;
-};
+}
 
 async function getCollections(supabase: Supabase): ResultPromise<CollectionRow[]> {
 	if (!supabase.user) {
@@ -57,7 +57,7 @@ async function deleteCollection(supabase: Supabase, id: number): ResultPromise<n
 	return createResult(response);
 }
 
-export const collectionRepository: CollectionRepository = {
+export const collectionRepository: ICollectionRepository = {
 	getCollections,
 	getCollection,
 	getCollectionIds,
