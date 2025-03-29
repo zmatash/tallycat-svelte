@@ -1,4 +1,3 @@
-import { collectionStore } from "$lib/stores/collection-store.svelte";
 import { profileStore } from "$lib/stores/profile-store.svelte";
 
 export const load = async ({ parent }) => {
@@ -11,8 +10,6 @@ export const load = async ({ parent }) => {
 			profileStore.invalidate();
 		}
 	}).data.subscription;
-
-	collectionStore.initialise(supabase);
 
 	return {
 		supabase,

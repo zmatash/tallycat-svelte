@@ -1,8 +1,13 @@
 <script lang="ts">
 	import PhoneNavbar from "$lib/components/phone-navbar/phone-navbar.svelte";
-	import { onDestroy } from "svelte";
+	import { collectionStore } from "$lib/stores/collection-store.svelte.js";
+	import { onDestroy, onMount } from "svelte";
 
 	let { children, data } = $props();
+
+	onMount(() => {
+		collectionStore.initialise(data.supabase);
+	});
 
 	onDestroy(() => {
 		data.dispose();
