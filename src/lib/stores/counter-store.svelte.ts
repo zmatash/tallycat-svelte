@@ -4,12 +4,11 @@ import type { Result } from "$lib/utility/result";
 import { counterState, type CounterState } from "$lib/utility/state/counter";
 import type { Supabase } from "$lib/utility/types/supabase";
 
-let tempId = -1;
-
 export class CounterStore {
-	_isLoading: boolean = $state(true);
-	_counterMap: Record<number, CounterState> = $state({});
-	_counters: CounterState[] = $derived(Object.values(this._counterMap).sort((a, b) => a.index - b.index));
+	private tempId = -1;
+	private _isLoading: boolean = $state(true);
+	private _counterMap: Record<number, CounterState> = $state({});
+	private _counters: CounterState[] = $derived(Object.values(this._counterMap).sort((a, b) => a.index - b.index));
 	collectionId: number;
 
 	constructor(supabase: Supabase, collectionId: number) {
@@ -80,7 +79,7 @@ export class CounterStore {
 		}
 
 		const tempState: CounterState = {
-			id: --tempId,
+			id: --this.tempId,
 			name,
 			value: 0,
 			index: this._counters.length,
