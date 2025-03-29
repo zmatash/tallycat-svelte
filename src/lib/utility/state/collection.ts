@@ -26,6 +26,14 @@ function toRowPartial(collection: PartialWithId<CollectionState>): PartialWithId
 	};
 }
 
+function toRowOmitId(collection: Omit<CollectionState, "id"> | CollectionState): Omit<CollectionRow, "id" | "user_id"> {
+	return {
+		name: collection.name,
+		member_count: collection.memberCount,
+		position: collection.position
+	};
+}
+
 function fromRow(collection: CollectionRow): CollectionState {
 	return {
 		id: collection.id,
@@ -38,5 +46,6 @@ function fromRow(collection: CollectionRow): CollectionState {
 export const collectionState = {
 	toRow,
 	toRowPartial,
+	toRowOmitId,
 	fromRow
 } as const;

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { goto } from "$app/navigation";
 	import type { CollectionState } from "$lib/utility/state/collection";
 	import Card from "../card.svelte";
 
@@ -7,25 +6,34 @@
 
 	interface Props {
 		collection: CollectionState;
+		focusInput?: boolean;
+		onNameBlur: (id: number, value: string) => void;
+		eventCapture: "change" | "blur";
+		selected?: boolean;
 	}
 
 	let props: Props = $props();
-
-	const onClick = () => {
-		goto(`/app/collections/${props.collection.id}`);
-	};
-
+	let inputRef: HTMLInputElement | undefined = $state(undefined);
 	let name = $state(props.collection.name);
+
+	$effect(() => {
+		if (props.focusInput && inputRef) {
+			inputRef.focus();
+			inputRef.select();
+		}
+	});
+
+	const handleEvent = () => props.onNameBlur(props.collection.id, name);
 </script>
 
-<Card class={`row-centred gap-16 pad-16 ${styles["collection-card"]}`}>
+<Card class={styles["collection-card"]} selected={props.selected}>
 	<img
 		alt="collection icon"
 		src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/logos/exports/1544x1544_circle.png"
 	/>
 	<div class="wrapper">
 		<div class="name-container">
-			<input type="text" class="name-span" bind:value={name} />
+			<input bind:this={inputRef} type="text" class="name-span" bind:value={name} onblur={handleEvent} />
 		</div>
 		<span class="counter-span">{props.collection.memberCount} Counters</span>
 	</div>
