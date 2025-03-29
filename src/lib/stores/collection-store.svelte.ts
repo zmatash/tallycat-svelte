@@ -4,7 +4,7 @@ import type { ResultPromise } from "$lib/utility/result";
 import { collectionState, type CollectionState } from "$lib/utility/state/collection";
 import type { Supabase } from "$lib/utility/types/supabase";
 
-interface CollectionStore {
+interface ICollectionStore {
 	collections: CollectionState[];
 	getCollection: (id: number) => CollectionState | null;
 	isLoading: boolean;
@@ -95,7 +95,7 @@ async function createCollection(supabase: Supabase, name: string): ResultPromise
 	return dbResult;
 }
 
-export const collectionStore: CollectionStore = {
+export const collectionStore: ICollectionStore = {
 	get collections() {
 		return _collections;
 	},
