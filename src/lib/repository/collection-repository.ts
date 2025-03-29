@@ -36,11 +36,9 @@ async function getCollection(supabase: Supabase, id: number): ResultPromise<Coll
 	return createResult(response);
 }
 
-async function patchCollection(
-	supabase: Supabase,
-	updatedCollection: PartialWithId<CollectionRow>
-): ResultPromise<null> {
-	const response = await supabase.client.from("collections").update(updatedCollection).eq("id", updatedCollection.id);
+async function patchCollection(supabase: Supabase, update: PartialWithId<CollectionRow>): ResultPromise<null> {
+	const { id, ...rest } = update;
+	const response = await supabase.client.from("collections").update(rest).eq("id", id);
 	return createResult(response);
 }
 

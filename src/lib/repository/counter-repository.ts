@@ -4,7 +4,7 @@ import type { Supabase } from "$lib/utility/types/supabase";
 
 interface ICounterRepository {
 	getCounters: (supabase: Supabase, collectionId: number) => ResultPromise<CounterRow[]>;
-	updateCounter: (supabase: Supabase, update: PartialWithId<CounterRow>) => ResultPromise<null>;
+	patchCounter: (supabase: Supabase, update: PartialWithId<CounterRow>) => ResultPromise<null>;
 	insertCounter: (supabase: Supabase, counter: Omit<CounterRow, "id">) => ResultPromise<{ id: number }>;
 	deleteCounter: (supabase: Supabase, id: number) => ResultPromise<null>;
 }
@@ -14,8 +14,9 @@ async function getCounters(supabase: Supabase, collectionId: number): ResultProm
 	return createResult(response);
 }
 
-async function updateCounter(supabase: Supabase, update: PartialWithId<CounterRow>): ResultPromise<null> {
-	const response = await supabase.client.from("counters").update(update).eq("id", update.id);
+async function patchCounter(supabase: Supabase, update: PartialWithId<CounterRow>): ResultPromise<null> {
+	const { id, ...rest } = update;
+	const response = await supabase.client.from("counters").update(rest).eq("id", id);
 	return createResult(response);
 }
 
@@ -31,7 +32,7 @@ async function deleteCounter(supabase: Supabase, id: number): ResultPromise<null
 
 export const counterRepository: ICounterRepository = {
 	getCounters,
-	updateCounter,
+	patchCounter,
 	insertCounter,
 	deleteCounter
 } as const;
