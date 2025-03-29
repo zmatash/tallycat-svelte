@@ -6,7 +6,6 @@ import type { Supabase } from "$lib/utility/types/supabase";
 interface CollectionStore {
 	collections: CollectionState[];
 	isLoading: boolean;
-	isInitialising: boolean;
 	initialise: (supabase: Supabase) => ResultPromise<null>;
 	createCollection: (supabase: Supabase, name: string) => ResultPromise<null>;
 }
@@ -69,9 +68,6 @@ export const collectionStore: CollectionStore = {
 	},
 	get isLoading() {
 		return isLoading;
-	},
-	get isInitialising() {
-		return isInitialising;
 	},
 	initialise,
 	createCollection
