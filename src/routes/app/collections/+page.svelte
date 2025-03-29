@@ -45,6 +45,7 @@
 				focusInput={true}
 				onNameBlur={createCollection}
 				selected={true}
+				editable={true}
 			/>
 		{/if}
 	</div>

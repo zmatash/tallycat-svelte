@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { goto } from "$app/navigation";
 	import type { CollectionState } from "$lib/utility/state/collection";
-	import Card from "../card.svelte";
+	import CardButton from "../card-button.svelte";
 
+	import Card from "../card.svelte";
 	import styles from "./card.module.css";
 
 	interface Props {
@@ -9,14 +11,19 @@
 		focusInput?: boolean;
 		onNameBlur: (id: number, value: string) => void;
 		selected?: boolean;
+		editable?: boolean;
 	}
 
 	let props: Props = $props();
 	let inputRef: HTMLInputElement | undefined = $state(undefined);
+
+	const editable = $state(props.editable ?? false);
 	let name = $state(props.collection.name);
 
 	$effect(() => {
-		if (props.focusInput && inputRef) {
+		if (!inputRef) return;
+
+		if (props.focusInput || editable) {
 			inputRef.focus();
 			inputRef.select();
 		}
@@ -25,18 +32,41 @@
 	const handleEvent = () => props.onNameBlur(props.collection.id, name);
 </script>
 
-<Card class={styles["collection-card"]} selected={props.selected}>
+{#snippet Collection()}
 	<img
 		alt="collection icon"
 		src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/logos/exports/1544x1544_circle.png"
 	/>
 	<div class="wrapper">
-		<div class="name-container">
-			<input bind:this={inputRef} type="text" class="name-span" bind:value={name} onblur={handleEvent} />
-		</div>
+		{#if editable}
+			<form class="name-container" onsubmit={() => inputRef?.blur()}>
+				<input bind:this={inputRef} type="text" class="name-span" bind:value={name} onblur={handleEvent} />
+			</form>
+		{:else}
+			<div class="name-container">
+				<span class="name-span">{props.collection.name}</span>
+			</div>
+		{/if}
+
 		<span class="counter-span">{props.collection.memberCount} Counters</span>
 	</div>
-</Card>
+{/snippet}
+
+{#if editable}
+	<Card class={styles["collection-card"]} selected={props.selected}>
+		<Collection />
+	</Card>
+{:else}
+	<CardButton
+		class={styles["collection-card"]}
+		selected={props.selected}
+		onClick={() => goto(`/app/collections/${props.collection.id}`)}
+		ariaLabel={`Go to ${props.collection.name}`}
+		buttonType="button"
+	>
+		<Collection />
+	</CardButton>
+{/if}
 
 <style>
 	.wrapper {
@@ -50,6 +80,7 @@
 
 	.name-container {
 		height: var(--size24);
+		background: var(--surface0);
 	}
 
 	.counter-span {
@@ -63,7 +94,8 @@
 		height: var(--size72);
 	}
 
-	input {
+	.name-container > input,
+	.name-container > span {
 		font-size: var(--size24);
 		font-weight: 500;
 		color: var(--subtext0);
