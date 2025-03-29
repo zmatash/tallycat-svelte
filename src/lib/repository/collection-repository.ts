@@ -7,7 +7,10 @@ type CollectionRepository = {
 	getCollection: (supabase: Supabase, id: number) => ResultPromise<CollectionRow>;
 	getCollectionIds: (supabase: Supabase) => ResultPromise<{ id: number }[]>;
 	patchCollection: (supabase: Supabase, updatedCollection: PartialWithId<CollectionRow>) => ResultPromise<null>;
-	insertCollection: (supabase: Supabase, collection: CollectionRow) => ResultPromise<{ id: number }>;
+	insertCollection: (
+		supabase: Supabase,
+		collection: Omit<CollectionRow, "id" | "user_id">
+	) => ResultPromise<{ id: number }>;
 	deleteCollection: (supabase: Supabase, id: number) => ResultPromise<null>;
 };
 
@@ -41,7 +44,10 @@ async function patchCollection(
 	return createResult(response);
 }
 
-async function insertCollection(supabase: Supabase, collection: CollectionRow): ResultPromise<{ id: number }> {
+async function insertCollection(
+	supabase: Supabase,
+	collection: Omit<CollectionRow, "id" | "user_id">
+): ResultPromise<{ id: number }> {
 	const response = await supabase.client.from("collections").insert(collection).select("id").single();
 	return createResult(response);
 }
