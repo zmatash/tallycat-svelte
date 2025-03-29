@@ -26,10 +26,11 @@
 	type="button"
 	aria-label={`Go to ${props.goto}`}
 	onclick={onClick}
+	disabled={!isEnabled}
 >
 	<svg>
 		<title>{props.sprite}</title>
-		<use href={isEnabled ? getSprite(props.sprite) : getSprite("circle-chevron")} />
+		<use href={isEnabled ? getSprite(props.sprite) : getSprite("pencil-off")} />
 	</svg>
 	{props.label}
 </button>

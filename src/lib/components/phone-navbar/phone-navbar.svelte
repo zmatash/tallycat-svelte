@@ -24,8 +24,8 @@
 <nav class="row-centred just-evenly">
 	<PhoneNavButton goto="/app/collections" sprite="group" label="Collections" />
 	<PhoneNavButton
-		goto="/collections"
-		sprite="check"
+		goto={activeCollectionProps.goto ?? ""}
+		sprite="pin"
 		label={activeCollectionProps.label}
 		isEnabled={activeCollectionProps.isEnabled}
 	/>
