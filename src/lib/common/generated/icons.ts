@@ -26,7 +26,7 @@ export interface Sprites {
 	readonly "tally-5": "/sprite-sheet.svg#tally-5";
 	readonly "trash-2": "/sprite-sheet.svg#trash-2";
 	readonly "user-round-pen": "/sprite-sheet.svg#user-round-pen";
-};
+}
 
 export type SpriteKey = keyof Sprites;
 
@@ -57,5 +57,5 @@ export const spriteKeys: Sprites = {
 	"square-x": "/sprite-sheet.svg#square-x",
 	"tally-5": "/sprite-sheet.svg#tally-5",
 	"trash-2": "/sprite-sheet.svg#trash-2",
-	"user-round-pen": "/sprite-sheet.svg#user-round-pen",
+	"user-round-pen": "/sprite-sheet.svg#user-round-pen"
 } as const;
