@@ -35,7 +35,7 @@
 	<div class="controls-container"></div>
 	<div class="collection-container pad-16 gap-16 col-centred">
 		{#each collectionStore.collections as collection (collection.id)}
-			<Collection {collection} onNameBlur={updateCollectionName} eventCapture="change" />
+			<Collection {collection} onNameBlur={updateCollectionName} />
 		{/each}
 		{#if !isCreatingCollection}
 			<CreateCollectionCard onClick={initialiseCollectionCreate} />
@@ -44,7 +44,6 @@
 				collection={inCreationCollection}
 				focusInput={true}
 				onNameBlur={createCollection}
-				eventCapture="blur"
 				selected={true}
 			/>
 		{/if}

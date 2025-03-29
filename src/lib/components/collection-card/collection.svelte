@@ -8,7 +8,6 @@
 		collection: CollectionState;
 		focusInput?: boolean;
 		onNameBlur: (id: number, value: string) => void;
-		eventCapture: "change" | "blur";
 		selected?: boolean;
 	}
 
