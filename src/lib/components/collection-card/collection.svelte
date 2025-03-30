@@ -53,12 +53,12 @@
 {/snippet}
 
 {#if editable}
-	<Card class={styles["collection-card"]} selected={props.selected}>
+	<Card class={`row-centred gap-16 pad-16 ${styles["collection-card"]}`} selected={props.selected}>
 		<Collection />
 	</Card>
 {:else}
 	<CardButton
-		class={styles["collection-card"]}
+		class={`row-centred gap-16 pad-16 ${styles["collection-card"]}`}
 		selected={props.selected}
 		onClick={() => goto(`/app/collections/${props.collection.id}`)}
 		ariaLabel={`Go to ${props.collection.name}`}

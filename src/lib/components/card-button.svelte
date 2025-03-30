@@ -13,7 +13,7 @@
 </script>
 
 <button
-	class={[`row-centred gap-16 pad-16 card ${props.class}`, { active: props.selected === true }]}
+	class={[`card ${props.class}`, { active: props.selected === true }]}
 	type={props.buttonType}
 	aria-label={props.ariaLabel}
 	onclick={props.onClick}

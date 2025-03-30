@@ -9,7 +9,7 @@
 	let props: Props = $props();
 </script>
 
-<div class={[`row-centred gap-16 pad-16 card ${props.class}`, { active: props.selected === true }]}>
+<div class={[`card ${props.class}`, { active: props.selected === true }]}>
 	{@render props.children()}
 </div>
 
