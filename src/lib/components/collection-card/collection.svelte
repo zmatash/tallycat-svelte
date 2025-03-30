@@ -3,8 +3,8 @@
 	import type { CollectionState } from "$lib/utility/state/collection";
 	import CardButton from "../card-button.svelte";
 
+	import styles from "../../style/modules/card.module.css";
 	import Card from "../card.svelte";
-	import styles from "./card.module.css";
 
 	interface Props {
 		collection: CollectionState;

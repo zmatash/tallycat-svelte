@@ -1,4 +1,5 @@
 .collection-card {
 	height: var(--size112);
 	width: 100%;
+	border-radius: var(--size24);
 }

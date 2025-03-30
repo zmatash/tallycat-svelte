@@ -15,7 +15,6 @@
 
 <style>
 	.card {
-		border-radius: var(--size16);
 		background: var(--surface0);
 		border: 3px solid transparent;
 	}

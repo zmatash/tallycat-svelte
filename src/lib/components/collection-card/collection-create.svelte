@@ -2,7 +2,7 @@
 	import getSprite from "$lib/utility/sprite-helpers";
 	import CardButton from "../card-button.svelte";
 
-	import styles from "./card.module.css";
+	import styles from "../../style/modules/card.module.css";
 
 	interface Props {
 		onClick: () => void;
