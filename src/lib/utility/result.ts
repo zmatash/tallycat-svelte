@@ -20,8 +20,5 @@ export function createResult<T, U extends Error>(response: ResponseType<T, U>): 
 	if (response.error) {
 		return { success: false, error: response.error };
 	}
-	if (!response.data) {
-		return { success: false, error: new Error("No data") };
-	}
-	return { success: true, data: response.data };
+	return { success: true, data: response.data as T };
 }
