@@ -35,5 +35,6 @@
 <style>
 	nav {
 		border-top: 1px solid var(--surface1);
+		padding: var(--size8) 0 var(--size8) 0;
 	}
 </style>

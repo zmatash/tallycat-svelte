@@ -10,6 +10,13 @@ function fromRow(row: ProfileRow): ProfileState {
 	};
 }
 
+function toRowPartial(update: Partial<ProfileState>): Partial<ProfileRow> {
+	return {
+		active_collection: update.activeCollection
+	};
+}
+
 export const profileState = {
-	fromRow
+	fromRow,
+	toRowPartial
 } as const;

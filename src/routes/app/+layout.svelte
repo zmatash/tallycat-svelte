@@ -33,7 +33,7 @@
 <style>
 	.container {
 		display: grid;
-		grid-template-rows: 1fr 64px;
+		grid-template-rows: 1fr var(--size64);
 		background: var(--base);
 	}
 </style>

@@ -1,25 +1,13 @@
 <script lang="ts">
-	import CreateCollectionCard from "$lib/components/collection-card/collection-create.svelte";
-	import Collection from "$lib/components/collection-card/collection.svelte";
+	import { goto } from "$app/navigation";
+	import Collection from "$lib/components/cards/collection.svelte";
+	import CreateCard from "$lib/components/cards/create-card.svelte";
 	import { collectionStore } from "$lib/stores/collection-store.svelte";
-	import type { CollectionState } from "$lib/utility/state/collection.js";
+	import { profileStore } from "$lib/stores/profile-store.svelte.js";
 
 	let { data } = $props();
 
-	const initialiseCollectionCreate = () => {
-		inCreationCollection = {
-			name: `Collection ${collectionStore.collections.length + 1}`,
-			memberCount: 0,
-			position: collectionStore.collections.length,
-			id: -1
-		};
-		isCreatingCollection = true;
-	};
-	const createCollection = async (_: number, name: string) => {
-		collectionStore.createCollection(data.supabase, name);
-		isCreatingCollection = false;
-		inCreationCollection = null;
-	};
+	const createCollection = (name: string) => collectionStore.createCollection(data.supabase, name);
 	const updateCollectionName = async (id: number, name: string) => {
 		const collection = collectionStore.getCollection(id);
 		if (collection && collection.name !== name) {
@@ -27,27 +15,21 @@
 		}
 	};
 
-	let isCreatingCollection = $state(false);
-	let inCreationCollection: CollectionState | null = $state(null);
+	const navigateToCollection = (id: number) => {
+		profileStore.updateProfile(data.supabase, { activeCollection: id });
+		goto(`/app/collections/${id}`);
+	};
+
+	let nextCollectionPlaceholder = $derived(`Collection ${collectionStore.collections.length + 1}`);
 </script>
 
 <div class="fill-parent wrapper">
 	<div class="controls-container"></div>
 	<div class="collection-container pad-16 gap-16 col-centred">
 		{#each collectionStore.collections as collection (collection.id)}
-			<Collection {collection} onNameBlur={updateCollectionName} />
+			<Collection {collection} onNameBlur={updateCollectionName} onClick={navigateToCollection} />
 		{/each}
-		{#if !isCreatingCollection}
-			<CreateCollectionCard onClick={initialiseCollectionCreate} />
-		{:else if inCreationCollection}
-			<Collection
-				collection={inCreationCollection}
-				focusInput={true}
-				onNameBlur={createCollection}
-				selected={true}
-				editable={true}
-			/>
-		{/if}
+		<CreateCard onSubmit={createCollection} label="New Collection" placeholderNewName={nextCollectionPlaceholder} />
 	</div>
 </div>
 

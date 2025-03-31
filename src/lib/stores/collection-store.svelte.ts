@@ -88,6 +88,9 @@ async function createCollection(supabase: Supabase, name: string): ResultPromise
 
 	const dbResult = await collectionRepository.insertCollection(supabase, collectionState.toRowOmitId(tempState));
 	if (dbResult.success) {
+		const realId = dbResult.data.id;
+		delete _collectionMap[tempState.id];
+		_collectionMap[realId] = { ...tempState, id: realId };
 		return { success: true, data: null };
 	}
 

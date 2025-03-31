@@ -9,6 +9,7 @@ interface IProfileStore {
 	profile: ProfileState | null;
 	initialise: (supabase: Supabase) => Promise<Result<null>>;
 	invalidate: () => void;
+	updateProfile: (supabase: Supabase, update: Partial<ProfileState>) => Promise<Result<null>>;
 }
 
 async function initialise(supabase: Supabase): Promise<Result<null>> {
@@ -17,6 +18,23 @@ async function initialise(supabase: Supabase): Promise<Result<null>> {
 		return result;
 	}
 	_profile = profileState.fromRow(result.data);
+	return { success: true, data: null };
+}
+
+async function updateProfile(supabase: Supabase, update: Partial<ProfileState>): Promise<Result<null>> {
+	const orginalProfile = _profile;
+	if (!orginalProfile) {
+		return { success: false, error: new Error("Profile not found") };
+	}
+
+	const row = profileState.toRowPartial(update);
+	_profile = { ...orginalProfile, ...update };
+
+	const result = await profileRepository.updateProfile(supabase, row);
+	if (!result.success) {
+		_profile = orginalProfile;
+		return result;
+	}
 	return { success: true, data: null };
 }
 
@@ -29,5 +47,6 @@ export const profileStore: IProfileStore = {
 		return _profile;
 	},
 	initialise,
-	invalidate
+	invalidate,
+	updateProfile
 } as const;

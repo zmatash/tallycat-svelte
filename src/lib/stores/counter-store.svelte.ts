@@ -52,6 +52,7 @@ export class CounterStore {
 		if (!user) {
 			return { success: false, error: new Error("Not logged in") };
 		}
+
 		const originalCounterState = this._counterMap[update.id];
 		if (!originalCounterState) {
 			return { success: false, error: new Error("Counter not found") };
@@ -93,7 +94,9 @@ export class CounterStore {
 			return dbResult;
 		}
 
-		this._counterMap[tempState.id] = { ...tempState, id: dbResult.data.id };
+		const realId = dbResult.data.id;
+		delete this._counterMap[tempState.id];
+		this._counterMap[realId] = { ...tempState, id: realId };
 		return { success: true, data: null };
 	}
 

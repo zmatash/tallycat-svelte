@@ -13,7 +13,7 @@
 	}
 
 	let { isEnabled = true, ...props }: Props = $props();
-	let isActive = $derived(page.route.id === props.goto);
+	let isActive = $derived(page.url.pathname === props.goto);
 
 	const onClick = () => {
 		if (!isEnabled || isActive) return;
@@ -41,13 +41,14 @@
 	}
 
 	button.selected {
-		font-weight: 600;
 		color: var(--mauve);
 	}
 
 	button {
 		justify-content: space-evenly;
 		color: var(--subtext0);
+		line-height: 1;
+		padding: 0;
 	}
 
 	svg {

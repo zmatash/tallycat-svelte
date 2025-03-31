@@ -2,25 +2,23 @@
 	import type { CounterState } from "$lib/utility/state/counter";
 	import Card from "../card.svelte";
 
+	import type { PartialWithId } from "$lib/common/types";
 	import getSprite from "$lib/utility/sprite-helpers";
 	import styles from "../../style/modules/card.module.css";
 
 	interface Props {
 		counter: CounterState;
-		updateCounter: (id: number, value: number) => void;
+		update: (update: PartialWithId<CounterState>) => void;
 	}
 
 	let props: Props = $props();
 
-	let inputRef: HTMLInputElement | undefined = $state(undefined);
+	let valueInputRef: HTMLInputElement | undefined = $state(undefined);
 
-	const onFocus = () => inputRef?.select();
-	const onIncrement = () => props.updateCounter(props.counter.id, props.counter.value + 1);
-	const onDecrement = () => props.updateCounter(props.counter.id, props.counter.value - 1);
-	const onBlur = () => {
-		if (!inputRef) return;
-		props.updateCounter(props.counter.id, Number(inputRef.value));
-	};
+	const onValueFocus = () => valueInputRef?.select();
+	const onIncrement = () => props.update?.({ id: props.counter.id, value: props.counter.value + 1 });
+	const onDecrement = () => props.update?.({ id: props.counter.id, value: props.counter.value - 1 });
+	const onBlur = () => props.update?.({ id: props.counter.id, value: Number(valueInputRef!.value) });
 </script>
 
 <Card class={`row-centred just-between gap-16 ${styles["collection-card"]}`}>
@@ -36,14 +34,14 @@
 		</svg>
 	</button>
 
-	<form class="fill-parent col-centred just-evenly pad-8" onsubmit={() => inputRef?.blur()}>
-		<label for="counter-value">{props.counter.name}</label>
+	<form class="fill-parent col-centred just-evenly pad-8" onsubmit={() => valueInputRef?.blur()}>
+		<span>{props.counter.name}</span>
 		<input
-			id="counter-value"
+			aria-label="Counter Value"
 			type="number"
 			value={props.counter.value}
-			bind:this={inputRef}
-			onfocus={onFocus}
+			bind:this={valueInputRef}
+			onfocus={onValueFocus}
 			onblur={onBlur}
 		/>
 	</form>
@@ -79,18 +77,19 @@
 	}
 
 	input,
-	label {
+	span {
 		font-size: var(--size24);
 		text-align: center;
+		width: 100%;
+	}
+
+	input::-webkit-outer-spin-button,
+	input::-webkit-inner-spin-button {
+		-webkit-appearance: none;
 	}
 
 	input {
-		font-weight: 600;
-	}
-
-	label {
 		font-weight: 500;
-		color: var(--subtext1);
 	}
 
 	svg {
