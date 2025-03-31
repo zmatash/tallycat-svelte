@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { goto } from "$app/navigation";
 	import type { CollectionState } from "$lib/utility/state/collection";
 	import CardButton from "../card-button.svelte";
 
@@ -12,6 +11,7 @@
 		onNameBlur: (id: number, value: string) => void;
 		selected?: boolean;
 		editable?: boolean;
+		onClick?: (id: number) => void;
 	}
 
 	let props: Props = $props();
@@ -60,7 +60,7 @@
 	<CardButton
 		class={`row-centred gap-16 pad-16 ${styles["collection-card"]}`}
 		selected={props.selected}
-		onClick={() => goto(`/app/collections/${props.collection.id}`)}
+		onClick={() => props.onClick?.(props.collection.id)}
 		ariaLabel={`Go to ${props.collection.name}`}
 		buttonType="button"
 	>
