@@ -6,7 +6,7 @@
 		buttonType: "button" | "submit" | "reset";
 		selected?: boolean;
 		ariaLabel: string;
-		onClick?: () => void;
+		onClick?: (...args: unknown[]) => void;
 	}
 
 	let props: Props = $props();
