@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { CounterState } from "$lib/utility/state/counter";
+	import type { CounterState } from "$lib/utility/state/counter-helpers";
 	import Card from "../card.svelte";
 
 	import type { PartialWithId } from "$lib/common/types";

@@ -1,11 +1,14 @@
 <script lang="ts">
-	import { collectionStore } from "$lib/stores/collection-store.svelte";
-	import { profileStore } from "$lib/stores/profile-store.svelte";
+	import { getCollectionStoreContext } from "$lib/stores/collection-store.svelte";
+	import { getProfileStoreContext } from "$lib/stores/profile-store.svelte";
 	import PhoneNavButton from "./phone-nav-button.svelte";
+
+	const profileStore = getProfileStoreContext();
+	const collectionStore = getCollectionStoreContext();
 
 	let activeCollectionProps = $derived.by(() => {
 		const activeId = profileStore.profile?.activeCollection;
-		const collection = activeId ? collectionStore.getCollection(activeId) : null;
+		const collection = activeId ? collectionStore.collectionsMap[activeId] : null;
 
 		if (!profileStore.profile || !activeId || !collection) {
 			return {

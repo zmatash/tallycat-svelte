@@ -43,7 +43,7 @@ function fromRow(collection: CollectionRow): CollectionState {
 	};
 }
 
-export const collectionState = {
+export const collectionHelpers = {
 	toRow,
 	toRowPartial,
 	toRowOmitId,

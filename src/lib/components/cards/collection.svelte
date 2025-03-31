@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { CollectionState } from "$lib/utility/state/collection";
+	import type { CollectionState } from "$lib/utility/state/collection-helpers";
 	import CardButton from "../card-button.svelte";
 
 	import styles from "../../style/modules/card.module.css";

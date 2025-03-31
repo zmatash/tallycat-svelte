@@ -1,25 +1,29 @@
 <script lang="ts">
 	import PhoneNavbar from "$lib/components/phone-navbar/phone-navbar.svelte";
-	import { collectionStore } from "$lib/stores/collection-store.svelte.js";
-	import { profileStore } from "$lib/stores/profile-store.svelte.js";
-	import { onMount } from "svelte";
+	import { setCollectionStoreContext } from "$lib/stores/collection-store.svelte.js";
+	import { setProfileStoreContext } from "$lib/stores/profile-store.svelte.js";
 
 	let { children, data } = $props();
 
-	onMount(() => {
-		collectionStore.initialise(data.supabase);
+	const profileStore = setProfileStoreContext(data.supabase);
+	const collectionStore = setCollectionStoreContext(data.supabase);
 
-		const authChangeSubscription = data.supabase.client.auth.onAuthStateChange((_, newSession) => {
-			if (newSession) {
-				profileStore.initialise(data.supabase);
-			} else {
-				profileStore.invalidate();
-			}
-		}).data.subscription;
+	data.collectionsData.then((result) => {
+		if (result.success) {
+			collectionStore.dataToState(result.data);
+		} else {
+			// TODO: goto error page
+			throw result.error;
+		}
+	});
 
-		return () => {
-			authChangeSubscription.unsubscribe();
-		};
+	data.profileData.then((result) => {
+		if (result.success) {
+			profileStore.dataToState(result.data);
+		} else {
+			// TODO: goto error page
+			throw result.error;
+		}
 	});
 </script>
 
@@ -33,7 +37,7 @@
 <style>
 	.container {
 		display: grid;
-		grid-template-rows: 1fr var(--size64);
+		grid-template-rows: 1fr 64px;
 		background: var(--base);
 	}
 </style>

@@ -1,112 +1,104 @@
-import type { PartialWithId } from "$lib/common/types";
+import type { CollectionRow, PartialWithId } from "$lib/common/types";
 import { collectionRepository } from "$lib/repository/collection-repository";
-import type { ResultPromise } from "$lib/utility/result";
-import { collectionState, type CollectionState } from "$lib/utility/state/collection";
+import type { Result } from "$lib/utility/result";
+import { collectionHelpers, type CollectionState } from "$lib/utility/state/collection-helpers";
 import type { Supabase } from "$lib/utility/types/supabase";
+import { getContext, setContext } from "svelte";
 
-interface ICollectionStore {
-	collections: CollectionState[];
-	getCollection: (id: number) => CollectionState | null;
-	isLoading: boolean;
-	initialise: (supabase: Supabase) => ResultPromise<null>;
-	createCollection: (supabase: Supabase, name: string) => ResultPromise<null>;
-	updateCollection: (supabase: Supabase, update: PartialWithId<CollectionState>) => ResultPromise<null>;
-}
+class CollectionStore {
+	private supabase: Required<Supabase>;
+	private tempId = -1;
 
-let _tempId = -1;
+	collectionsMap: Record<number, CollectionState> = $state({});
+	collectionsArray: CollectionState[] = $derived(
+		Object.values(this.collectionsMap).sort((a, b) => a.position - b.position)
+	);
 
-let isLoading = $state(true);
-
-let _collectionMap = $state<Record<number, CollectionState>>({});
-const _collections = $derived(Object.values(_collectionMap).sort((a, b) => a.position - b.position));
-
-async function initialise(supabase: Supabase): ResultPromise<null> {
-	isLoading = true;
-
-	if (!supabase.user) {
-		return { success: false, error: new Error("Not logged in") };
+	constructor(supabase: Supabase) {
+		this.supabase = supabase;
+		if (!this.supabase.user) {
+			throw new Error("Not logged in");
+		}
 	}
 
-	const result = await collectionRepository.getCollections(supabase);
-	if (!result.success) {
-		isLoading = false;
+	async dataToState(data: CollectionRow[]) {
+		const collectionMap: Record<number, CollectionState> = {};
+		for (const row of data) {
+			collectionMap[row.id] = collectionHelpers.fromRow(row);
+		}
+		this.collectionsMap = collectionMap;
+	}
+
+	async createCollection(name: string): Promise<Result<null>> {
+		const tempState: CollectionState = {
+			id: --this.tempId,
+			name,
+			memberCount: 0,
+			position: this.collectionsArray.length
+		};
+
+		this.collectionsMap[tempState.id] = tempState;
+		const result = await collectionRepository.insertCollection(
+			this.supabase,
+			collectionHelpers.toRowOmitId(tempState)
+		);
+
+		if (result.success) {
+			const realId = result.data.id;
+			delete this.collectionsMap[tempState.id];
+			this.collectionsMap[realId] = { ...tempState, id: realId };
+			return { success: true, data: null };
+		}
+
+		delete this.collectionsMap[tempState.id];
 		return result;
 	}
 
-	const collectionMap: Record<number, CollectionState> = {};
-	for (const row of result.data) {
-		collectionMap[row.id] = collectionState.fromRow(row);
-	}
-	_collectionMap = collectionMap;
-	isLoading = false;
-	return { success: true, data: null };
-}
+	async removeCollection(id: number): Promise<Result<null>> {
+		const collection = this.collectionsMap[id];
+		if (!collection) {
+			return { success: false, error: new Error(`Collection not found with id ${id}`) };
+		}
 
-function getCollection(id: number): CollectionState | null {
-	return _collectionMap[id] ?? null;
-}
-
-async function updateCollection(supabase: Supabase, update: PartialWithId<CollectionState>): ResultPromise<null> {
-	const user = supabase.user;
-	if (!user) {
-		return { success: false, error: new Error("Not logged in") };
-	}
-	const originalCollectionState = _collectionMap[update.id];
-	if (!originalCollectionState) {
-		return { success: false, error: new Error("Collection not found") };
-	}
-
-	const updatedCollection: CollectionState = {
-		...originalCollectionState,
-		...update
-	};
-	_collectionMap[updatedCollection.id] = updatedCollection;
-
-	const row = collectionState.toRowPartial(update);
-	const result = await collectionRepository.patchCollection(supabase, row);
-	if (result.success) {
+		delete this.collectionsMap[id];
+		const result = await collectionRepository.deleteCollection(this.supabase, id);
+		if (result.success) {
+			return result;
+		}
+		this.collectionsMap[id] = collection;
 		return result;
 	}
 
-	_collectionMap[updatedCollection.id] = originalCollectionState;
-	return result;
+	async updateCollection(update: PartialWithId<CollectionState>): Promise<Result<null>> {
+		const originalState = this.collectionsMap[update.id];
+		if (!originalState) {
+			return { success: false, error: new Error(`Collection not found with id ${update.id}`) };
+		}
+
+		const updatedCollection = { ...originalState, ...update };
+		this.collectionsMap[updatedCollection.id] = updatedCollection;
+
+		const result = await collectionRepository.patchCollection(
+			this.supabase,
+			collectionHelpers.toRowPartial(update)
+		);
+		if (result.success) {
+			return result;
+		}
+
+		this.collectionsMap[updatedCollection.id] = originalState;
+		return result;
+	}
 }
 
-async function createCollection(supabase: Supabase, name: string): ResultPromise<null> {
-	const user = supabase.user;
-	if (!user) {
-		return { success: false, error: new Error("Not logged in") };
-	}
+export type ICollectionStore = CollectionStore;
 
-	const tempState: CollectionState = {
-		id: _tempId--,
-		name,
-		memberCount: 0,
-		position: 0
-	};
-	_collectionMap[tempState.id] = tempState;
+const COLLECTIONS_KEY = Symbol("collections");
 
-	const dbResult = await collectionRepository.insertCollection(supabase, collectionState.toRowOmitId(tempState));
-	if (dbResult.success) {
-		const realId = dbResult.data.id;
-		delete _collectionMap[tempState.id];
-		_collectionMap[realId] = { ...tempState, id: realId };
-		return { success: true, data: null };
-	}
-
-	delete _collectionMap[tempState.id];
-	return dbResult;
+export function setCollectionStoreContext(supabase: Supabase) {
+	return setContext(COLLECTIONS_KEY, new CollectionStore(supabase)) as ICollectionStore;
 }
 
-export const collectionStore: ICollectionStore = {
-	get collections() {
-		return _collections;
-	},
-	get isLoading() {
-		return isLoading;
-	},
-	getCollection,
-	initialise,
-	createCollection,
-	updateCollection
-} as const;
+export function getCollectionStoreContext() {
+	return getContext<ICollectionStore>(COLLECTIONS_KEY);
+}

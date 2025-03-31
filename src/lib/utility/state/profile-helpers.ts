@@ -16,7 +16,7 @@ function toRowPartial(update: Partial<ProfileState>): Partial<ProfileRow> {
 	};
 }
 
-export const profileState = {
+export const profileHelpers = {
 	fromRow,
 	toRowPartial
 } as const;

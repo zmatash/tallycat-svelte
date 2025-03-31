@@ -46,7 +46,7 @@ function fromRow(counter: CounterRow): CounterState {
 	};
 }
 
-export const counterState = {
+export const counterHelpers = {
 	toRow,
 	toRowPartial,
 	toRowOmitId,

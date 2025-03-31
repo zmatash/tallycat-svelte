@@ -1,123 +1,104 @@
-import type { PartialWithId } from "$lib/common/types";
+import type { CounterRow, PartialWithId } from "$lib/common/types";
 import { counterRepository } from "$lib/repository/counter-repository";
 import type { Result } from "$lib/utility/result";
-import { counterState, type CounterState } from "$lib/utility/state/counter";
+import { counterHelpers, type CounterState } from "$lib/utility/state/counter-helpers";
 import type { Supabase } from "$lib/utility/types/supabase";
+import { getContext, setContext } from "svelte";
+import type { ICollectionStore } from "./collection-store.svelte";
 
-export class CounterStore {
+class CounterStore {
+	private supabase: Required<Supabase>;
 	private tempId = -1;
-	private _isLoading: boolean = $state(true);
-	private _counterMap: Record<number, CounterState> = $state({});
-	private _counters: CounterState[] = $derived(Object.values(this._counterMap).sort((a, b) => a.index - b.index));
+
+	countersMap: Record<number, CounterState> = $state({});
+	countersArray: CounterState[] = $derived(Object.values(this.countersMap).sort((a, b) => a.index - b.index));
 	collectionId: number;
 
-	constructor(supabase: Supabase, collectionId: number) {
+	constructor(
+		supabase: Supabase,
+		collectionId: number,
+		private _collectionStore: ICollectionStore
+	) {
+		this.supabase = supabase;
 		this.collectionId = collectionId;
-		this.initialise(supabase);
-	}
-
-	get counters() {
-		return this._counters;
-	}
-
-	get isLoading() {
-		return this._isLoading;
-	}
-
-	private async initialise(supabase: Supabase): Promise<Result<null>> {
-		this._isLoading = true;
-
-		const data = await counterRepository.getCounters(supabase, this.collectionId);
-		if (!data.success) {
-			this._isLoading = false;
-			return data;
+		if (!this.supabase.user) {
+			throw new Error("Not logged in");
 		}
+	}
 
+	async dataToState(data: CounterRow[]) {
 		const collectionMap: Record<number, CounterState> = {};
-		for (const row of data.data) {
-			collectionMap[row.id] = counterState.fromRow(row);
+		for (const row of data) {
+			collectionMap[row.id] = counterHelpers.fromRow(row);
 		}
-		this._counterMap = collectionMap;
-
-		this._isLoading = false;
-		return { success: true, data: null };
+		this.countersMap = collectionMap;
 	}
 
-	getCounter(id: number): CounterState | null {
-		return this._counterMap[id] ?? null;
-	}
-
-	async updateCounter(supabase: Supabase, update: PartialWithId<CounterState>): Promise<Result<null>> {
-		const user = supabase.user;
-		if (!user) {
-			return { success: false, error: new Error("Not logged in") };
-		}
-
-		const originalCounterState = this._counterMap[update.id];
-		if (!originalCounterState) {
-			return { success: false, error: new Error("Counter not found") };
-		}
-
-		const updatedCounter: CounterState = {
-			...originalCounterState,
-			...update
-		};
-		this._counterMap[updatedCounter.id] = updatedCounter;
-
-		const row = counterState.toRowPartial(update);
-		const result = await counterRepository.patchCounter(supabase, row);
-		if (!result.success) {
-			this._counterMap[updatedCounter.id] = originalCounterState;
-			return result;
-		}
-		return result;
-	}
-
-	async addCounter(supabase: Supabase, name: string): Promise<Result<null>> {
-		const user = supabase.user;
-		if (!user) {
-			return { success: false, error: new Error("Not logged in") };
-		}
-
+	async createCounter(name: string): Promise<Result<null>> {
 		const tempState: CounterState = {
 			id: --this.tempId,
 			name,
 			value: 0,
-			index: this._counters.length,
+			index: this.countersArray.length,
 			collectionId: this.collectionId
 		};
-		this._counterMap[tempState.id] = tempState;
+		this.countersMap[tempState.id] = tempState;
 
-		const dbResult = await counterRepository.insertCounter(supabase, counterState.toRowOmitId(tempState));
-		if (!dbResult.success) {
-			delete this._counterMap[tempState.id];
-			return dbResult;
+		const result = await counterRepository.insertCounter(this.supabase, counterHelpers.toRowOmitId(tempState));
+		if (result.success) {
+			const realId = result.data.id;
+			delete this.countersMap[tempState.id];
+			this.countersMap[realId] = { ...tempState, id: realId };
+			this._collectionStore.updateCollection({ id: this.collectionId, memberCount: this.countersArray.length });
+			return { success: true, data: null };
 		}
 
-		const realId = dbResult.data.id;
-		delete this._counterMap[tempState.id];
-		this._counterMap[realId] = { ...tempState, id: realId };
-		return { success: true, data: null };
+		delete this.countersMap[tempState.id];
+		return result;
 	}
 
-	async removeCounter(supabase: Supabase, id: number): Promise<Result<null>> {
-		const user = supabase.user;
-		if (!user) {
-			return { success: false, error: new Error("Not logged in") };
-		}
-
-		const counter = this._counterMap[id];
+	async removeCounter(id: number): Promise<Result<null>> {
+		const counter = this.countersMap[id];
 		if (!counter) {
-			return { success: false, error: new Error("Counter not found") };
+			return { success: false, error: new Error(`Counter not found with id ${id}`) };
 		}
-		delete this._counterMap[id];
 
-		const result = await counterRepository.deleteCounter(supabase, id);
-		if (!result.success) {
-			this._counterMap[id] = counter;
+		delete this.countersMap[id];
+		const result = await counterRepository.deleteCounter(this.supabase, id);
+		if (result.success) {
+			return result;
+		}
+		this.countersMap[id] = counter;
+		return result;
+	}
+
+	async updateCounter(update: PartialWithId<CounterState>): Promise<Result<null>> {
+		const originalState = this.countersMap[update.id];
+		if (!originalState) {
+			return { success: false, error: new Error(`Counter not found with id ${update.id}`) };
+		}
+
+		const updatedCounter = { ...originalState, ...update };
+		this.countersMap[updatedCounter.id] = updatedCounter;
+
+		const result = await counterRepository.patchCounter(this.supabase, counterHelpers.toRowPartial(update));
+		if (result.success) {
 			return result;
 		}
 
+		this.countersMap[updatedCounter.id] = originalState;
 		return result;
 	}
+}
+
+export type ICounterStore = CounterStore;
+
+const COUNTERS_KEY = Symbol("counters");
+
+export function setCounterStoreContext(supabase: Supabase, collectionId: number, collectionStore: ICollectionStore) {
+	return setContext(COUNTERS_KEY, new CounterStore(supabase, collectionId, collectionStore));
+}
+
+export function getCounterStoreContext() {
+	return getContext<ICounterStore>(COUNTERS_KEY);
 }

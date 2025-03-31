@@ -1,10 +1,14 @@
-import { CounterStore } from "$lib/stores/counter-store.svelte";
+import { counterRepository } from "$lib/repository/counter-repository";
 import type { PageLoad } from "./$types";
 
 export const load = (async (request) => {
 	const data = await request.parent();
 
+	const collectionId = Number(request.params.id);
+	const counterData = counterRepository.getCounters(data.supabase, collectionId);
+
 	return {
-		counterStore: new CounterStore(data.supabase, Number(request.params.id))
+		counterData,
+		collectionId
 	};
 }) satisfies PageLoad;

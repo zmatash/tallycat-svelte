@@ -1,52 +1,52 @@
+import type { ProfileRow } from "$lib/common/types";
 import { profileRepository } from "$lib/repository/profile-repository";
 import type { Result } from "$lib/utility/result";
-import { profileState, type ProfileState } from "$lib/utility/state/profile";
+import { profileHelpers, type ProfileState } from "$lib/utility/state/profile-helpers";
 import type { Supabase } from "$lib/utility/types/supabase";
+import { getContext, setContext } from "svelte";
 
-let _profile: ProfileState | null = $state(null);
+export class ProfileStore {
+	private supabase: Required<Supabase>;
+	profile: ProfileState | null = $state(null);
 
-interface IProfileStore {
-	profile: ProfileState | null;
-	initialise: (supabase: Supabase) => Promise<Result<null>>;
-	invalidate: () => void;
-	updateProfile: (supabase: Supabase, update: Partial<ProfileState>) => Promise<Result<null>>;
-}
+	constructor(supabase: Supabase) {
+		this.supabase = supabase;
+		if (!this.supabase.user) {
+			throw new Error("Not logged in");
+		}
+	}
 
-async function initialise(supabase: Supabase): Promise<Result<null>> {
-	const result = await profileRepository.getProfile(supabase);
-	if (!result.success) {
+	dataToState(data: ProfileRow) {
+		this.profile = profileHelpers.fromRow(data);
+	}
+
+	async updateProfile(update: Partial<ProfileState>): Promise<Result<null>> {
+		if (!this.profile) {
+			return { success: false, error: new Error("Profile not found") };
+		}
+
+		const originalState = this.profile;
+		const row = profileHelpers.toRowPartial(update);
+		this.profile = { ...this.profile, ...update };
+
+		const result = await profileRepository.updateProfile(this.supabase, row);
+		if (result.success) {
+			return result;
+		}
+
+		this.profile = originalState;
 		return result;
 	}
-	_profile = profileState.fromRow(result.data);
-	return { success: true, data: null };
 }
 
-async function updateProfile(supabase: Supabase, update: Partial<ProfileState>): Promise<Result<null>> {
-	const orginalProfile = _profile;
-	if (!orginalProfile) {
-		return { success: false, error: new Error("Profile not found") };
-	}
+export type IProfileStore = ProfileStore;
 
-	const row = profileState.toRowPartial(update);
-	_profile = { ...orginalProfile, ...update };
+const PROFILE_KEY = Symbol("profile");
 
-	const result = await profileRepository.updateProfile(supabase, row);
-	if (!result.success) {
-		_profile = orginalProfile;
-		return result;
-	}
-	return { success: true, data: null };
+export function setProfileStoreContext(supabase: Supabase): IProfileStore {
+	return setContext(PROFILE_KEY, new ProfileStore(supabase));
 }
 
-function invalidate() {
-	_profile = null;
+export function getProfileStoreContext() {
+	return getContext<IProfileStore>(PROFILE_KEY);
 }
-
-export const profileStore: IProfileStore = {
-	get profile() {
-		return _profile;
-	},
-	initialise,
-	invalidate,
-	updateProfile
-} as const;
